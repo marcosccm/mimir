@@ -1,10 +1,28 @@
 window.Book = class Book extends Backbone.Model
+  initialize: ->
+    @set(status: "On Queue")
+
+  reading: ->
+    @set(status: "Now Reading")
+
+  read: ->
+    @set(status: "Read")
+
   clear: =>
     @destroy()
 
 window.Books = class Books extends Backbone.Collection
   model: Book
   url: "/books"
+
+  pending: ->
+    @filter (book) -> book.get("status") == "On Queue"
+
+  reading: ->
+    @filter (book) -> book.get("status") == "Now Reading"
+
+  read: ->
+    @filter (book) -> book.get("status") == "Read"
 
 window.readings = new Books()
 
@@ -13,7 +31,9 @@ window.BookView = class BookView extends Backbone.View
   className: "book"
 
   events:
-    "click button" : "removeItem"
+    "click button[data-action='remove']" : "removeItem"
+    "click button[data-action='reading']" : "bookReading"
+    "click button[data-action='read']" : "bookRead"
 
   initialize: =>
     @template = _.template $("#book-template").html()
@@ -27,6 +47,12 @@ window.BookView = class BookView extends Backbone.View
   removeItem: =>
     @model.clear()
     $(@el).remove()
+
+  bookReading: =>
+    @model.reading()
+
+  bookRead: =>
+    @model.read()
 
 window.ReadingList = class ReadingList extends Backbone.View
   tagName: "section"
@@ -58,8 +84,16 @@ window.StatsView = class StatsView extends Backbone.View
     @collection.bind "all", @render
 
   render: =>
-    $(@el).html(@template(total: @collection.length))
+    $(@el).html(@template(@stats()))
     this
+
+  stats: =>
+    {
+      pending: @collection.pending().length
+      reading: @collection.reading().length
+      read: @collection.read().length
+    }
+    
 
 window.BooksRouter = class BooksRouter extends Backbone.Router
   routes:

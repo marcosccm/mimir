@@ -14,6 +14,21 @@
       this.clear = __bind(this.clear, this);
       Book.__super__.constructor.apply(this, arguments);
     }
+    Book.prototype.initialize = function() {
+      return this.set({
+        status: "On Queue"
+      });
+    };
+    Book.prototype.reading = function() {
+      return this.set({
+        status: "Now Reading"
+      });
+    };
+    Book.prototype.read = function() {
+      return this.set({
+        status: "Read"
+      });
+    };
     Book.prototype.clear = function() {
       return this.destroy();
     };
@@ -26,12 +41,29 @@
     }
     Books.prototype.model = Book;
     Books.prototype.url = "/books";
+    Books.prototype.pending = function() {
+      return this.filter(function(book) {
+        return book.get("status") === "On Queue";
+      });
+    };
+    Books.prototype.reading = function() {
+      return this.filter(function(book) {
+        return book.get("status") === "Now Reading";
+      });
+    };
+    Books.prototype.read = function() {
+      return this.filter(function(book) {
+        return book.get("status") === "Read";
+      });
+    };
     return Books;
   })();
   window.readings = new Books();
   window.BookView = BookView = (function() {
     __extends(BookView, Backbone.View);
     function BookView() {
+      this.bookRead = __bind(this.bookRead, this);
+      this.bookReading = __bind(this.bookReading, this);
       this.removeItem = __bind(this.removeItem, this);
       this.render = __bind(this.render, this);
       this.initialize = __bind(this.initialize, this);
@@ -40,7 +72,9 @@
     BookView.prototype.tagName = "li";
     BookView.prototype.className = "book";
     BookView.prototype.events = {
-      "click button": "removeItem"
+      "click button[data-action='remove']": "removeItem",
+      "click button[data-action='reading']": "bookReading",
+      "click button[data-action='read']": "bookRead"
     };
     BookView.prototype.initialize = function() {
       this.template = _.template($("#book-template").html());
@@ -55,6 +89,12 @@
     BookView.prototype.removeItem = function() {
       this.model.clear();
       return $(this.el).remove();
+    };
+    BookView.prototype.bookReading = function() {
+      return this.model.reading();
+    };
+    BookView.prototype.bookRead = function() {
+      return this.model.read();
     };
     return BookView;
   })();
@@ -99,6 +139,7 @@
   window.StatsView = StatsView = (function() {
     __extends(StatsView, Backbone.View);
     function StatsView() {
+      this.stats = __bind(this.stats, this);
       this.render = __bind(this.render, this);
       this.initialize = __bind(this.initialize, this);
       StatsView.__super__.constructor.apply(this, arguments);
@@ -109,10 +150,15 @@
       return this.collection.bind("all", this.render);
     };
     StatsView.prototype.render = function() {
-      $(this.el).html(this.template({
-        total: this.collection.length
-      }));
+      $(this.el).html(this.template(this.stats()));
       return this;
+    };
+    StatsView.prototype.stats = function() {
+      return {
+        pending: this.collection.pending().length,
+        reading: this.collection.reading().length,
+        read: this.collection.read().length
+      };
     };
     return StatsView;
   })();

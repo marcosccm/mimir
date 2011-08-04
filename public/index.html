@@ -22,7 +22,10 @@
 
     <script id="book-template" type="text/template">
       <span><%= title %></span>
-      <button>Remover</span>
+      <span><%= status %></span>
+      <button data-action="remove">Remover</button>
+      <button data-action="reading">Lendo</button>
+      <button data-action="read">Lido</button>
     </script>
 
     <script id="reading-list-template" type="text/template">
@@ -38,6 +41,9 @@
     </script>
 
     <script id="stats" type="text/html">
-       <%= total %> Books Read
+      <h2>You have:</h2>
+      <%= pending %> Books Pending
+       <%= reading %> Books Reading
+       <%= read %> Books Read
     </script>
   </body>
