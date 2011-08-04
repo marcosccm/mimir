@@ -36,10 +36,8 @@ window.ReadingList = class ReadingList extends Backbone.View
 
   initialize: =>
     @template = _.template $("#reading-list-template").html()
-    @statsTemplate = _.template $("#stats").html()
     @collection.bind "reset", @render
     @collection.bind "add", @render
-    @collection.bind "all", @renderStats
    
   render: =>
     $(@el).html(@template({}))
@@ -48,12 +46,20 @@ window.ReadingList = class ReadingList extends Backbone.View
       @$('.reading-list').append(view.render().el)
     this
 
-  renderStats: =>
-    @$('#book-stats').html(@statsTemplate(total: @collection.length))
-
   addBook: =>
     book = new Book(title: $("#book-title").val())
     @collection.add(book)
+
+window.StatsView = class StatsView extends Backbone.View
+  tagName: "span"
+
+  initialize: =>
+    @template = _.template $("#stats").html()
+    @collection.bind "all", @render
+
+  render: =>
+    $(@el).html(@template(total: @collection.length))
+    this
 
 window.BooksRouter = class BooksRouter extends Backbone.Router
   routes:
@@ -61,7 +67,9 @@ window.BooksRouter = class BooksRouter extends Backbone.Router
 
   initialize: =>
     @view = new ReadingList(collection: window.readings)
+    @stats = new StatsView(collection: window.readings)
 
   home:=>
     $("#container").html(@view.render().el)
+    $("#container").append(@stats.render().el)
 

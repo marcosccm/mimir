@@ -1,5 +1,5 @@
 (function() {
-  var Book, BookView, Books, BooksRouter, ReadingList;
+  var Book, BookView, Books, BooksRouter, ReadingList, StatsView;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -62,7 +62,6 @@
     __extends(ReadingList, Backbone.View);
     function ReadingList() {
       this.addBook = __bind(this.addBook, this);
-      this.renderStats = __bind(this.renderStats, this);
       this.render = __bind(this.render, this);
       this.initialize = __bind(this.initialize, this);
       ReadingList.__super__.constructor.apply(this, arguments);
@@ -73,10 +72,8 @@
     };
     ReadingList.prototype.initialize = function() {
       this.template = _.template($("#reading-list-template").html());
-      this.statsTemplate = _.template($("#stats").html());
       this.collection.bind("reset", this.render);
-      this.collection.bind("add", this.render);
-      return this.collection.bind("all", this.renderStats);
+      return this.collection.bind("add", this.render);
     };
     ReadingList.prototype.render = function() {
       $(this.el).html(this.template({}));
@@ -90,11 +87,6 @@
       });
       return this;
     };
-    ReadingList.prototype.renderStats = function() {
-      return this.$('#book-stats').html(this.statsTemplate({
-        total: this.collection.length
-      }));
-    };
     ReadingList.prototype.addBook = function() {
       var book;
       book = new Book({
@@ -103,6 +95,26 @@
       return this.collection.add(book);
     };
     return ReadingList;
+  })();
+  window.StatsView = StatsView = (function() {
+    __extends(StatsView, Backbone.View);
+    function StatsView() {
+      this.render = __bind(this.render, this);
+      this.initialize = __bind(this.initialize, this);
+      StatsView.__super__.constructor.apply(this, arguments);
+    }
+    StatsView.prototype.tagName = "span";
+    StatsView.prototype.initialize = function() {
+      this.template = _.template($("#stats").html());
+      return this.collection.bind("all", this.render);
+    };
+    StatsView.prototype.render = function() {
+      $(this.el).html(this.template({
+        total: this.collection.length
+      }));
+      return this;
+    };
+    return StatsView;
   })();
   window.BooksRouter = BooksRouter = (function() {
     __extends(BooksRouter, Backbone.Router);
@@ -115,12 +127,16 @@
       '': 'home'
     };
     BooksRouter.prototype.initialize = function() {
-      return this.view = new ReadingList({
+      this.view = new ReadingList({
+        collection: window.readings
+      });
+      return this.stats = new StatsView({
         collection: window.readings
       });
     };
     BooksRouter.prototype.home = function() {
-      return $("#container").html(this.view.render().el);
+      $("#container").html(this.view.render().el);
+      return $("#container").append(this.stats.render().el);
     };
     return BooksRouter;
   })();
