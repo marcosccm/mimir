@@ -17,16 +17,27 @@
   </head>
   <body>
     <div id="container">
+
     </div>
 
     <script id="book-template" type="text/template">
       <span><%= title %></span>
+      <button>Remover</span>
     </script>
 
     <script id="reading-list-template" type="text/template">
-       <h2>My Reading List</h2>
-       <ul class="reading-list">
-       </ul>
+      <h2>My Reading List</h2>
+
+      <label>Add a Book!</label>
+      <input id="book-title"  type="text" />
+      
+      <ul class="reading-list">
+      </ul>
+
+      <div id="book-stats"></div>
+    </script>
+
+    <script id="stats" type="text/html">
+       <h3><%= total %> Books Read</h3>
     </script>
   </body>
-</html>
