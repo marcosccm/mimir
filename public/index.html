@@ -28,12 +28,26 @@
       <button data-action="read">Lido</button>
     </script>
 
+    <script id="subject-template" type="text/template">
+       <span><%= description %></span>
+    </script>
+      
+    <script id="subject-list-template" type="text/template">
+       <h2>Subjects</h2>
+       <ul class="subjects-list"></ul>
+    </script>
+
+
     <script id="reading-list-template" type="text/template">
       <h2>My Reading List</h2>
 
       <label>Add a Book!</label>
       <input id="book-title"  type="text" />
+
+      <label>Subjects</label>
+      <input id="subject"  type="text" />
       
+      <button id="add-book">Add</button> 
       <ul class="reading-list">
       </ul>
 
