@@ -11,30 +11,36 @@
   window.Book = Book = (function() {
     __extends(Book, Backbone.Model);
     function Book() {
-      this.clear = __bind(this.clear, this);
       this.belongsToSubject = __bind(this.belongsToSubject, this);
       Book.__super__.constructor.apply(this, arguments);
     }
+    Book.prototype.bookStatus = {
+      pending: "On Queue",
+      reading: "Now Reading",
+      read: "Read"
+    };
     Book.prototype.initialize = function(attributes) {
-      return this.set({
-        status: "On Queue"
-      });
+      if (!attributes.status) {
+        return this.set({
+          status: this.bookStatus.pending
+        });
+      }
     };
     Book.prototype.reading = function() {
       return this.set({
-        status: "Now Reading"
+        status: this.bookStatus.reading
       });
     };
     Book.prototype.read = function() {
       return this.set({
-        status: "Read"
+        status: this.bookStatus.read
       });
     };
     Book.prototype.belongsToSubject = function(description) {
       return this.get('subject') && this.get('subject').get('description') === description;
     };
-    Book.prototype.clear = function() {
-      return this.destroy();
+    Book.prototype.hasStatus = function(status) {
+      return this.get('status') === this.bookStatus[status];
     };
     return Book;
   })();
@@ -52,19 +58,9 @@
     }
     Books.prototype.model = Book;
     Books.prototype.url = "/books";
-    Books.prototype.pending = function() {
+    Books.prototype.withStatus = function(status) {
       return this.filter(function(book) {
-        return book.get("status") === "On Queue";
-      });
-    };
-    Books.prototype.reading = function() {
-      return this.filter(function(book) {
-        return book.get("status") === "Now Reading";
-      });
-    };
-    Books.prototype.read = function() {
-      return this.filter(function(book) {
-        return book.get("status") === "Read";
+        return book.hasStatus(status);
       });
     };
     return Books;
@@ -132,7 +128,7 @@
       return this;
     };
     BookView.prototype.removeItem = function() {
-      this.model.clear();
+      this.model.destroy();
       return $(this.el).remove();
     };
     BookView.prototype.bookReading = function() {
@@ -275,9 +271,9 @@
     };
     StatsView.prototype.stats = function() {
       return {
-        pending: this.collection.pending().length,
-        reading: this.collection.reading().length,
-        read: this.collection.read().length
+        pending: this.collection.withStatus('pending').length,
+        reading: this.collection.withStatus('reading').length,
+        read: this.collection.withStatus('read').length
       };
     };
     return StatsView;

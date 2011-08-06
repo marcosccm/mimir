@@ -1,34 +1,32 @@
 window.Book = class Book extends Backbone.Model
+  bookStatus:
+    pending:  "On Queue"
+    reading: "Now Reading"
+    read:    "Read"
+
   initialize: (attributes) ->
-    @set(status: "On Queue")
+    @set(status: @bookStatus.pending) unless attributes.status
 
   reading: ->
-    @set(status: "Now Reading")
+    @set(status: @bookStatus.reading)
 
   read: ->
-    @set(status: "Read")
+    @set(status: @bookStatus.read)
 
   belongsToSubject: (description) =>
     @get('subject') && @get('subject').get('description') == description
 
-  clear: =>
-    @destroy()
+  hasStatus: (status)->
+    @get('status') == @bookStatus[status]
 
 window.Subject = class Subject extends Backbone.Model
-
 
 window.Books = class Books extends Backbone.Collection
   model: Book
   url: "/books"
 
-  pending: ->
-    @filter (book) -> book.get("status") == "On Queue"
-
-  reading: ->
-    @filter (book) -> book.get("status") == "Now Reading"
-
-  read: ->
-    @filter (book) -> book.get("status") == "Read"
+  withStatus: (status) ->
+    @filter (book) -> book.hasStatus(status)
 
 window.readings = new Books()
 
@@ -70,7 +68,7 @@ window.BookView = class BookView extends Backbone.View
     this
 
   removeItem: =>
-    @model.clear()
+    @model.destroy()
     $(@el).remove()
 
   bookReading: =>
@@ -162,11 +160,10 @@ window.StatsView = class StatsView extends Backbone.View
 
   stats: =>
     {
-      pending: @collection.pending().length
-      reading: @collection.reading().length
-      read: @collection.read().length
+      pending: @collection.withStatus('pending').length
+      reading: @collection.withStatus('reading').length
+      read: @collection.withStatus('read').length
     }
-    
 
 window.BooksRouter = class BooksRouter extends Backbone.Router
   routes:
@@ -181,4 +178,3 @@ window.BooksRouter = class BooksRouter extends Backbone.Router
     $("#container").html(@view.render().el)
     $("#container").append(@stats.render().el)
     $("#container").append(@subjects.render().el)
-
