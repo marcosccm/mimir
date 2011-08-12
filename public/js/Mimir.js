@@ -22,8 +22,15 @@
     Book.prototype.initialize = function(attributes) {
       this.id = attributes["_id"];
       if (!attributes.status) {
-        return this.set({
+        this.set({
           status: this.bookStatus.pending
+        });
+      }
+      if (attributes.subject) {
+        return this.set({
+          subject: new Subject({
+            description: attributes.subject.description
+          })
         });
       }
     };
@@ -219,25 +226,32 @@
       return book.save();
     };
     ReadingList.prototype.filterReadings = function(subject) {
-      this.$('li').hide();
-      return this.collection.filter(function(model) {
-        if (model.belongsToSubject(subject)) {
-          return model.trigger('filter');
-        }
-      });
+      if (subject === "all") {
+        return this.$('li').show();
+      } else {
+        this.$('li').hide();
+        return this.collection.filter(function(model) {
+          if (model.belongsToSubject(subject)) {
+            return model.trigger('filter');
+          }
+        });
+      }
     };
     return ReadingList;
   })();
   window.SubjectsList = SubjectsList = (function() {
     __extends(SubjectsList, Backbone.View);
     function SubjectsList() {
-      this.filterReadings = __bind(this.filterReadings, this);
+      this.filterNone = __bind(this.filterNone, this);
       this.render = __bind(this.render, this);
       this.initialize = __bind(this.initialize, this);
       SubjectsList.__super__.constructor.apply(this, arguments);
     }
     SubjectsList.prototype.tagName = "section";
     SubjectsList.prototype.className = "subjects-list";
+    SubjectsList.prototype.events = {
+      "click #all": "filterNone"
+    };
     SubjectsList.prototype.initialize = function() {
       this.template = _.template($("#subject-list-template").html());
       this.collection.bind("reset", this.render);
@@ -255,9 +269,8 @@
       });
       return this;
     };
-    SubjectsList.prototype.filterReadings = function(description) {
-      readings.filterV;
-      return alert(description);
+    SubjectsList.prototype.filterNone = function() {
+      return this.collection.trigger("filter", "all");
     };
     return SubjectsList;
   })();

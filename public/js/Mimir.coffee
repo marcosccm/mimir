@@ -7,6 +7,7 @@ window.Book = class Book extends Backbone.Model
   initialize: (attributes) ->
     @id = attributes["_id"]
     @set(status: @bookStatus.pending) unless attributes.status
+    @set(subject: new Subject(description: attributes.subject.description)) if attributes.subject
 
   reading: ->
     @set(status: @bookStatus.reading)
@@ -131,13 +132,19 @@ window.ReadingList = class ReadingList extends Backbone.View
     book.save()
 
   filterReadings: (subject) =>
-    @$('li').hide()
-    @collection.filter (model) -> 
-      model.trigger('filter') if model.belongsToSubject(subject)
+    if subject == "all" 
+      @$('li').show()
+    else
+      @$('li').hide()
+      @collection.filter (model) -> 
+       model.trigger('filter') if model.belongsToSubject(subject)
 
 window.SubjectsList = class SubjectsList extends Backbone.View
   tagName: "section"
   className: "subjects-list"
+
+  events:
+    "click #all" : "filterNone"
 
   initialize: =>
     @template = _.template $("#subject-list-template").html()
@@ -151,9 +158,8 @@ window.SubjectsList = class SubjectsList extends Backbone.View
       @$('.subjects-list').append(view.render().el)
     this
 
-  filterReadings: (description) =>
-    readings.filterV
-    alert(description)
+  filterNone: =>
+    @collection.trigger("filter","all")
 
 window.StatsView = class StatsView extends Backbone.View
   tagName: "section"
