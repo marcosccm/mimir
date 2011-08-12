@@ -5,6 +5,7 @@ window.Book = class Book extends Backbone.Model
     read:    "Read"
 
   initialize: (attributes) ->
+    @id = attributes["_id"]
     @set(status: @bookStatus.pending) unless attributes.status
 
   reading: ->
@@ -60,6 +61,7 @@ window.BookView = class BookView extends Backbone.View
   initialize: =>
     @template = _.template $("#book-template").html()
     @model.bind "change", @render
+    @model.bind "change", @saveModel
     @model.bind "filter", @show
 
   render: =>
@@ -76,6 +78,9 @@ window.BookView = class BookView extends Backbone.View
 
   bookRead: =>
     @model.read()
+
+  saveModel: =>
+    @model.save()
 
   show: =>
     $(@el).show()
@@ -101,6 +106,7 @@ window.SubjectView = class SubjectView extends Backbone.View
 
 window.ReadingList = class ReadingList extends Backbone.View
   tagName: "section"
+  className: "reading-list"
 
   events:
     "click #add-book" : "addBook"
@@ -115,13 +121,14 @@ window.ReadingList = class ReadingList extends Backbone.View
     $(@el).html(@template({}))
     @collection.each (book) ->
       view = new BookView(model: book, collection:  @collection)
-      @$('.reading-list').append(view.render().el)
+      @$('.readings').append(view.render().el)
     this
 
   addBook: =>
     subject = subjects.findOrCreate($("#subject").val())
     book = new Book(title: $("#book-title").val(), subject: subject)
     @collection.add(book)
+    book.save()
 
   filterReadings: (subject) =>
     @$('li').hide()
@@ -130,6 +137,7 @@ window.ReadingList = class ReadingList extends Backbone.View
 
 window.SubjectsList = class SubjectsList extends Backbone.View
   tagName: "section"
+  className: "subjects-list"
 
   initialize: =>
     @template = _.template $("#subject-list-template").html()
@@ -148,7 +156,8 @@ window.SubjectsList = class SubjectsList extends Backbone.View
     alert(description)
 
 window.StatsView = class StatsView extends Backbone.View
-  tagName: "span"
+  tagName: "section"
+  className: "stats-list"
 
   initialize: =>
     @template = _.template $("#stats").html()

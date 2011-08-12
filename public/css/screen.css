@@ -1,0 +1,73 @@
+body{
+  margin: 0;
+  width: 100%;
+  background-image: url('/img/whitey.png');
+  background-repeat: repeat;
+  background-position: center;
+}
+
+h1, h2, h3 { 
+  margin: 0;
+}
+header {
+  display: block;
+}
+
+header h1 {
+  font-family: 'Lobster Two';
+  font-size: 4em;
+  color: #333;
+}
+
+header h2 {
+  font-size: 1.1em;
+  color: #999;
+}
+
+section {
+  border: solid 1px black;
+  margin: 3px;
+  background-image: url('/img/green-fibers.png');
+  background-repeat: repeat;
+  background-position: center;
+}
+
+section h2 {
+  font-size: 1.1em;
+}
+
+#container {
+  width: 100%;
+}
+
+.reading-list {
+  border-radius: 5px;
+  width: 84%;
+  float: right;
+}
+.subjects-list {
+  border-radius: 5px;
+  width: 15%;
+  float: left;
+}
+.stats-list {
+  border-radius: 5px;
+  width: 15%;
+  float: left;
+}
+
+.stats-list div {
+  float: left;
+  width: 33%;
+  text-align: center;
+}
+
+.stats-list .stat {
+  font-size: 2em;
+  font-weight: bold;
+  display: block;
+}
+
+.round-corners{
+  border-radius: 5px;
+}

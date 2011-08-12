@@ -8,11 +8,11 @@ describe "Book", ->
   beforeEach ->
     @book = new Book
 
-  it "initialize with an On Queue status", ->
+  it "initialize with an Pending status", ->
     expect(@book.get('status')).toEqual("On Queue") 
 
   describe "reading", ->
-    it "change status to Now Reading", ->
+    it "change status to Reading", ->
       @book.reading()
       expect(@book.get('status')).toEqual("Now Reading") 
 

@@ -20,6 +20,7 @@
       read: "Read"
     };
     Book.prototype.initialize = function(attributes) {
+      this.id = attributes["_id"];
       if (!attributes.status) {
         return this.set({
           status: this.bookStatus.pending
@@ -102,6 +103,7 @@
     __extends(BookView, Backbone.View);
     function BookView() {
       this.show = __bind(this.show, this);
+      this.saveModel = __bind(this.saveModel, this);
       this.bookRead = __bind(this.bookRead, this);
       this.bookReading = __bind(this.bookReading, this);
       this.removeItem = __bind(this.removeItem, this);
@@ -119,6 +121,7 @@
     BookView.prototype.initialize = function() {
       this.template = _.template($("#book-template").html());
       this.model.bind("change", this.render);
+      this.model.bind("change", this.saveModel);
       return this.model.bind("filter", this.show);
     };
     BookView.prototype.render = function() {
@@ -136,6 +139,9 @@
     };
     BookView.prototype.bookRead = function() {
       return this.model.read();
+    };
+    BookView.prototype.saveModel = function() {
+      return this.model.save();
     };
     BookView.prototype.show = function() {
       return $(this.el).show();
@@ -180,6 +186,7 @@
       ReadingList.__super__.constructor.apply(this, arguments);
     }
     ReadingList.prototype.tagName = "section";
+    ReadingList.prototype.className = "reading-list";
     ReadingList.prototype.events = {
       "click #add-book": "addBook"
     };
@@ -197,7 +204,7 @@
           model: book,
           collection: this.collection
         });
-        return this.$('.reading-list').append(view.render().el);
+        return this.$('.readings').append(view.render().el);
       });
       return this;
     };
@@ -208,7 +215,8 @@
         title: $("#book-title").val(),
         subject: subject
       });
-      return this.collection.add(book);
+      this.collection.add(book);
+      return book.save();
     };
     ReadingList.prototype.filterReadings = function(subject) {
       this.$('li').hide();
@@ -229,6 +237,7 @@
       SubjectsList.__super__.constructor.apply(this, arguments);
     }
     SubjectsList.prototype.tagName = "section";
+    SubjectsList.prototype.className = "subjects-list";
     SubjectsList.prototype.initialize = function() {
       this.template = _.template($("#subject-list-template").html());
       this.collection.bind("reset", this.render);
@@ -260,7 +269,8 @@
       this.initialize = __bind(this.initialize, this);
       StatsView.__super__.constructor.apply(this, arguments);
     }
-    StatsView.prototype.tagName = "span";
+    StatsView.prototype.tagName = "section";
+    StatsView.prototype.className = "stats-list";
     StatsView.prototype.initialize = function() {
       this.template = _.template($("#stats").html());
       return this.collection.bind("all", this.render);

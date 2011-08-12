@@ -16,11 +16,11 @@
     beforeEach(function() {
       return this.book = new Book;
     });
-    it("initialize with an On Queue status", function() {
+    it("initialize with an Pending status", function() {
       return expect(this.book.get('status')).toEqual("On Queue");
     });
     describe("reading", function() {
-      return it("change status to Now Reading", function() {
+      return it("change status to Reading", function() {
         this.book.reading();
         return expect(this.book.get('status')).toEqual("Now Reading");
       });
