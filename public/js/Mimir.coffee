@@ -29,8 +29,15 @@ window.Books = class Books extends Backbone.Collection
   model: Book
   url: "/books"
 
+  initialize: =>
+    @bind("change:status", @sort)
+
   withStatus: (status) ->
     @filter (book) -> book.hasStatus(status)
+ 
+  comparator: (book) ->
+    book.get("status")
+
 
 window.readings = new Books()
 
@@ -146,6 +153,7 @@ window.ReadingListView = class ReadingListView extends Backbone.View
       @$('li').hide()
       @collection.filter (model) -> 
        model.trigger('filter') if model.belongsToSubject(subject)
+
 
 window.SubjectsListView = class SubjectsListView extends Backbone.View
   tagName: "section"

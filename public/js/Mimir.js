@@ -58,14 +58,21 @@
   window.Books = Books = (function() {
     __extends(Books, Backbone.Collection);
     function Books() {
+      this.initialize = __bind(this.initialize, this);
       Books.__super__.constructor.apply(this, arguments);
     }
     Books.prototype.model = Book;
     Books.prototype.url = "/books";
+    Books.prototype.initialize = function() {
+      return this.bind("change:status", this.sort);
+    };
     Books.prototype.withStatus = function(status) {
       return this.filter(function(book) {
         return book.hasStatus(status);
       });
+    };
+    Books.prototype.comparator = function(book) {
+      return book.get("status");
     };
     return Books;
   })();

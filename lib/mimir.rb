@@ -16,7 +16,7 @@ class Mimir < Sinatra::Base
   end
 
   get "/subjects" do
-    DB.view(Book.all).map { |x| { "description" => x.subject} }.compact.to_json
+    DB.view(Book.all).map { |x| { "description" => x.subject} }.compact.uniq.to_json
   end
 
   post "/books" do
