@@ -1,5 +1,5 @@
 (function() {
-  var Book, BookView, Books, BooksRouter, ReadingList, StatsView, Subject, SubjectView, Subjects, SubjectsList;
+  var Book, BookView, Books, BooksRouter, ReadingListView, StatsView, Subject, SubjectView, Subjects, SubjectsListView;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -14,6 +14,9 @@
       this.belongsToSubject = __bind(this.belongsToSubject, this);
       Book.__super__.constructor.apply(this, arguments);
     }
+    Book.prototype.defaults = {
+      subject: "Computer Science"
+    };
     Book.prototype.bookStatus = {
       pending: "On Queue",
       reading: "Now Reading",
@@ -22,15 +25,8 @@
     Book.prototype.initialize = function(attributes) {
       this.id = attributes["_id"];
       if (!attributes.status) {
-        this.set({
-          status: this.bookStatus.pending
-        });
-      }
-      if (attributes.subject) {
         return this.set({
-          subject: new Subject({
-            description: attributes.subject.description
-          })
+          status: this.bookStatus.pending
         });
       }
     };
@@ -45,7 +41,7 @@
       });
     };
     Book.prototype.belongsToSubject = function(description) {
-      return this.get('subject') && this.get('subject').get('description') === description;
+      return this.get('subject') === description;
     };
     Book.prototype.hasStatus = function(status) {
       return this.get('status') === this.bookStatus[status];
@@ -129,6 +125,7 @@
       this.template = _.template($("#book-template").html());
       this.model.bind("change", this.render);
       this.model.bind("change", this.saveModel);
+      this.model.bind("remove", this.destroy);
       return this.model.bind("filter", this.show);
     };
     BookView.prototype.render = function() {
@@ -138,8 +135,7 @@
       return this;
     };
     BookView.prototype.removeItem = function() {
-      this.model.destroy();
-      return $(this.el).remove();
+      return this.model.destroy();
     };
     BookView.prototype.bookReading = function() {
       return this.model.reading();
@@ -164,7 +160,7 @@
       SubjectView.__super__.constructor.apply(this, arguments);
     }
     SubjectView.prototype.tagName = "li";
-    SubjectView.prototype.className = "subjects";
+    SubjectView.prototype.className = "subject";
     SubjectView.prototype.events = {
       "click span": "filterEvent"
     };
@@ -183,27 +179,30 @@
     };
     return SubjectView;
   })();
-  window.ReadingList = ReadingList = (function() {
-    __extends(ReadingList, Backbone.View);
-    function ReadingList() {
+  window.ReadingListView = ReadingListView = (function() {
+    __extends(ReadingListView, Backbone.View);
+    function ReadingListView() {
       this.filterReadings = __bind(this.filterReadings, this);
       this.addBook = __bind(this.addBook, this);
+      this.openAddBook = __bind(this.openAddBook, this);
       this.render = __bind(this.render, this);
       this.initialize = __bind(this.initialize, this);
-      ReadingList.__super__.constructor.apply(this, arguments);
+      ReadingListView.__super__.constructor.apply(this, arguments);
     }
-    ReadingList.prototype.tagName = "section";
-    ReadingList.prototype.className = "reading-list";
-    ReadingList.prototype.events = {
-      "click #add-book": "addBook"
+    ReadingListView.prototype.tagName = "section";
+    ReadingListView.prototype.className = "reading-list";
+    ReadingListView.prototype.events = {
+      "click #add-book": "addBook",
+      "click #open-add-book": "openAddBook"
     };
-    ReadingList.prototype.initialize = function() {
+    ReadingListView.prototype.initialize = function() {
+      this.subjects = this.options.subjects;
       this.template = _.template($("#reading-list-template").html());
       this.collection.bind("reset", this.render);
       this.collection.bind("add", this.render);
-      return subjects.bind("filter", this.filterReadings);
+      return this.subjects.bind("filter", this.filterReadings);
     };
-    ReadingList.prototype.render = function() {
+    ReadingListView.prototype.render = function() {
       $(this.el).html(this.template({}));
       this.collection.each(function(book) {
         var view;
@@ -215,17 +214,21 @@
       });
       return this;
     };
-    ReadingList.prototype.addBook = function() {
+    ReadingListView.prototype.openAddBook = function() {
+      return this.$("#book-form").toggle("fast");
+    };
+    ReadingListView.prototype.addBook = function() {
       var book, subject;
       subject = subjects.findOrCreate($("#subject").val());
       book = new Book({
         title: $("#book-title").val(),
-        subject: subject
+        subject: $("#subject").val()
       });
       this.collection.add(book);
-      return book.save();
+      book.save();
+      return this.openAddBook();
     };
-    ReadingList.prototype.filterReadings = function(subject) {
+    ReadingListView.prototype.filterReadings = function(subject) {
       if (subject === "all") {
         return this.$('li').show();
       } else {
@@ -237,27 +240,27 @@
         });
       }
     };
-    return ReadingList;
+    return ReadingListView;
   })();
-  window.SubjectsList = SubjectsList = (function() {
-    __extends(SubjectsList, Backbone.View);
-    function SubjectsList() {
+  window.SubjectsListView = SubjectsListView = (function() {
+    __extends(SubjectsListView, Backbone.View);
+    function SubjectsListView() {
       this.filterNone = __bind(this.filterNone, this);
       this.render = __bind(this.render, this);
       this.initialize = __bind(this.initialize, this);
-      SubjectsList.__super__.constructor.apply(this, arguments);
+      SubjectsListView.__super__.constructor.apply(this, arguments);
     }
-    SubjectsList.prototype.tagName = "section";
-    SubjectsList.prototype.className = "subjects-list";
-    SubjectsList.prototype.events = {
+    SubjectsListView.prototype.tagName = "section";
+    SubjectsListView.prototype.className = "subjects-list";
+    SubjectsListView.prototype.events = {
       "click #all": "filterNone"
     };
-    SubjectsList.prototype.initialize = function() {
+    SubjectsListView.prototype.initialize = function() {
       this.template = _.template($("#subject-list-template").html());
       this.collection.bind("reset", this.render);
       return this.collection.bind("add", this.render);
     };
-    SubjectsList.prototype.render = function() {
+    SubjectsListView.prototype.render = function() {
       $(this.el).html(this.template({}));
       this.collection.each(function(subject) {
         var view;
@@ -265,14 +268,14 @@
           model: subject,
           collection: this.collection
         });
-        return this.$('.subjects-list').append(view.render().el);
+        return this.$('.subjects').append(view.render().el);
       });
       return this;
     };
-    SubjectsList.prototype.filterNone = function() {
+    SubjectsListView.prototype.filterNone = function() {
       return this.collection.trigger("filter", "all");
     };
-    return SubjectsList;
+    return SubjectsListView;
   })();
   window.StatsView = StatsView = (function() {
     __extends(StatsView, Backbone.View);
@@ -312,13 +315,14 @@
       '': 'home'
     };
     BooksRouter.prototype.initialize = function() {
-      this.view = new ReadingList({
-        collection: window.readings
+      this.view = new ReadingListView({
+        collection: window.readings,
+        subjects: window.subjects
       });
       this.stats = new StatsView({
         collection: window.readings
       });
-      return this.subjects = new SubjectsList({
+      return this.subjects = new SubjectsListView({
         collection: window.subjects
       });
     };

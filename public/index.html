@@ -4,6 +4,7 @@
 
     <title>Mimir</title>
     <link href='http://fonts.googleapis.com/css?family=Lobster+Two' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Coustard' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="css/screen.css" media="screen, projection">
 
     <script src="js/vendor/jquery-1.5.1.min.js"></script>
@@ -21,11 +22,18 @@
     </div>
 
     <script id="book-template" type="text/template">
-      <span><%= title %></span>
-      <span><%= status %></span>
-      <button data-action="remove">Remover</button>
-      <button data-action="reading">Lendo</button>
-      <button data-action="read">Lido</button>
+      <div class="section">
+        <span class="title"><%= title %></span>
+        <span class="subject"><%= subject %></span>
+      </div>
+      <div class="section">
+        <span class="status"><%= status %></span>
+        <div class="actions">
+          <button data-action="remove">Remover</button>
+          <button data-action="reading">Lendo</button>
+          <button data-action="read">Lido</button>
+        </div>
+      </div>
     </script>
 
     <script id="subject-template" type="text/template">
@@ -33,22 +41,30 @@
     </script>
       
     <script id="subject-list-template" type="text/template">
-       <h2>Subjects</h2>
-       <button id="all">All</button>
-       <ul class="subjects"></ul>
+      <header>
+         Subjects
+         <a id="all" href="#">View All</a>
+      </header>
+      <ul class="subjects"></ul>
     </script>
 
 
     <script id="reading-list-template" type="text/template">
-      <h2>My Reading List</h2>
+      <header>
+        My Reading List
+        <a id="open-add-book" href="#">Add a Book!</a>
+      </header>
 
-      <label>Add a Book!</label>
-      <input id="book-title"  type="text" />
+      <div id="book-form">
+        <label>Title</label>
+        <input id="book-title"  type="text" />
 
-      <label>Subjects</label>
-      <input id="subject"  type="text" />
-      
-      <button id="add-book">Add</button> 
+        <label>Subjects</label>
+        <input id="subject"  type="text" />
+        
+        <button id="add-book">Add</button> 
+      </div>
+
       <ul class="readings">
       </ul>
 
@@ -56,7 +72,7 @@
     </script>
 
     <script id="stats" type="text/html">
-      <h2>Readings Status</h2>
+      <header>Status</header>
       <div>
         <span class="stat"><%= pending %></span>
         <span>pending<span>

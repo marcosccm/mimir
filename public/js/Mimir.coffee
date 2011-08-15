@@ -1,4 +1,7 @@
 window.Book = class Book extends Backbone.Model
+  defaults:
+    subject: "Computer Science"
+
   bookStatus:
     pending:  "On Queue"
     reading: "Now Reading"
@@ -7,7 +10,6 @@ window.Book = class Book extends Backbone.Model
   initialize: (attributes) ->
     @id = attributes["_id"]
     @set(status: @bookStatus.pending) unless attributes.status
-    @set(subject: new Subject(description: attributes.subject.description)) if attributes.subject
 
   reading: ->
     @set(status: @bookStatus.reading)
@@ -16,7 +18,7 @@ window.Book = class Book extends Backbone.Model
     @set(status: @bookStatus.read)
 
   belongsToSubject: (description) =>
-    @get('subject') && @get('subject').get('description') == description
+    @get('subject') == description
 
   hasStatus: (status)->
     @get('status') == @bookStatus[status]
@@ -63,6 +65,7 @@ window.BookView = class BookView extends Backbone.View
     @template = _.template $("#book-template").html()
     @model.bind "change", @render
     @model.bind "change", @saveModel
+    @model.bind "remove", @destroy
     @model.bind "filter", @show
 
   render: =>
@@ -72,7 +75,6 @@ window.BookView = class BookView extends Backbone.View
 
   removeItem: =>
     @model.destroy()
-    $(@el).remove()
 
   bookReading: =>
     @model.reading()
@@ -88,7 +90,7 @@ window.BookView = class BookView extends Backbone.View
 
 window.SubjectView = class SubjectView extends Backbone.View
   tagName: "li"
-  className: "subjects"
+  className: "subject"
 
   events:
     "click span" : "filterEvent"
@@ -105,18 +107,20 @@ window.SubjectView = class SubjectView extends Backbone.View
   filterEvent: =>
     @model.collection.trigger("filter", @model.get('description'))
 
-window.ReadingList = class ReadingList extends Backbone.View
+window.ReadingListView = class ReadingListView extends Backbone.View
   tagName: "section"
   className: "reading-list"
 
   events:
     "click #add-book" : "addBook"
+    "click #open-add-book" : "openAddBook"
 
   initialize: =>
+    @subjects = @options.subjects
     @template = _.template $("#reading-list-template").html()
     @collection.bind "reset", @render
     @collection.bind "add", @render
-    subjects.bind "filter", @filterReadings
+    @subjects.bind "filter", @filterReadings
    
   render: =>
     $(@el).html(@template({}))
@@ -125,11 +129,15 @@ window.ReadingList = class ReadingList extends Backbone.View
       @$('.readings').append(view.render().el)
     this
 
+  openAddBook: =>
+    @$("#book-form").toggle("fast")
+
   addBook: =>
     subject = subjects.findOrCreate($("#subject").val())
-    book = new Book(title: $("#book-title").val(), subject: subject)
+    book = new Book(title: $("#book-title").val(), subject: $("#subject").val())
     @collection.add(book)
     book.save()
+    @openAddBook()
 
   filterReadings: (subject) =>
     if subject == "all" 
@@ -139,7 +147,7 @@ window.ReadingList = class ReadingList extends Backbone.View
       @collection.filter (model) -> 
        model.trigger('filter') if model.belongsToSubject(subject)
 
-window.SubjectsList = class SubjectsList extends Backbone.View
+window.SubjectsListView = class SubjectsListView extends Backbone.View
   tagName: "section"
   className: "subjects-list"
 
@@ -155,7 +163,7 @@ window.SubjectsList = class SubjectsList extends Backbone.View
     $(@el).html(@template({}))
     @collection.each (subject) ->
       view = new SubjectView(model: subject, collection:  @collection)
-      @$('.subjects-list').append(view.render().el)
+      @$('.subjects').append(view.render().el)
     this
 
   filterNone: =>
@@ -185,9 +193,9 @@ window.BooksRouter = class BooksRouter extends Backbone.Router
     '' : 'home'
 
   initialize: =>
-    @view = new ReadingList(collection: window.readings)
+    @view = new ReadingListView(collection: window.readings, subjects: window.subjects)
     @stats = new StatsView(collection: window.readings)
-    @subjects = new SubjectsList(collection: window.subjects)
+    @subjects = new SubjectsListView(collection: window.subjects)
 
   home:=>
     $("#container").html(@view.render().el)

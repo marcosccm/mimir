@@ -16,7 +16,7 @@ header {
 header h1 {
   font-family: 'Lobster Two';
   font-size: 4em;
-  color: #333;
+  color: #312C20;
 }
 
 header h2 {
@@ -27,9 +27,12 @@ header h2 {
 section {
   border: solid 1px black;
   margin: 3px;
-  background-image: url('/img/green-fibers.png');
+  background-image: url('/img/wood_1.png');
   background-repeat: repeat;
   background-position: center;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
 }
 
 section h2 {
@@ -45,6 +48,79 @@ section h2 {
   width: 84%;
   float: right;
 }
+
+.readings {
+  margin: 5px 15px 5px 10px;
+  list-style: none;
+  float: left;
+  padding: 0px;
+}
+
+.readings li {
+  float: left;
+  width: 100%;
+  background-color: rgba(226,203,146,0.6);
+  border: 2px solid #7C7052;
+  margin: 5px 0px;
+}
+
+.readings span { 
+  font-family: "Coustard";
+  font-size: 1.3em;
+  color: #494d4b;
+  padding: 0 5px;
+}
+
+.readings .section { 
+  width: 100%;
+  float: left;
+}
+
+.readings .title {
+  float: left;
+}
+
+.readings .subject {
+  float: right;
+}
+.readings .status {
+  font-size: 0.8em;
+}
+
+.readings .actions { 
+  float: right;
+  font-size: 0.8em;
+  width: 300px;
+  margin: 0;
+}
+
+#book-form { 
+  display: none;
+  float: right;
+  width: 330px;
+  margin: 0 10px;
+  padding: 10px;
+  font-size: 1.1em;
+  color: #494d4b;
+  background-color: rgba(226,203,146,0.6);
+}
+
+#book-form label { 
+  font-size: 0.7em;
+  font-weight:bold;
+  display: block;
+}
+#book-form button { 
+  float: right;
+}
+#book-form input { 
+  width: 95%;
+  padding: 4px;
+  margin-bottom: 5px;
+}
+
+
+
 .subjects-list {
   border-radius: 5px;
   width: 15%;
@@ -62,6 +138,11 @@ section h2 {
   text-align: center;
 }
 
+.stats-list span {
+  color: #7C7052;
+  margin: 5px 8px;
+  background-color: rgba(60,60,60,0.5);
+}
 .stats-list .stat {
   font-size: 2em;
   font-weight: bold;
@@ -70,4 +151,36 @@ section h2 {
 
 .round-corners{
   border-radius: 5px;
+}
+
+section header { 
+  font-family: "Coustard";
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #B3A176;
+  margin: 5px 10px;
+  background-color: rgba(60,60,60,0.5);
+}
+
+section header a {
+  float: right;
+  text-decoration: none;
+  color: #B3A176;
+}
+.subjects {
+  margin: 5px;
+  list-style: none;
+  float: left;
+  padding: 0px;
+  width: 100%;
+}
+
+.subjects li { 
+  font-family: "Coustard";
+  font-size: 1.1em;
+  color: #494d4b;
+  margin: 5px;
+  padding: 2px;
+  width: 90%;
+  background-color: rgba(226,203,146,0.6);
 }
