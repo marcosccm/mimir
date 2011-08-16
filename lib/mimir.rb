@@ -23,6 +23,7 @@ class Mimir < Sinatra::Base
     data = JSON.parse(request.body.read)
     book = Book.new(data)
     DB.save_document book
+    book.to_json
   end
 
   put "/books/:id" do
@@ -30,6 +31,7 @@ class Mimir < Sinatra::Base
     book = DB.load(data.id)
     book.status = data.status
     DB.save_document! book
+    book.to_json
   end
 
   delete "/books/:id" do

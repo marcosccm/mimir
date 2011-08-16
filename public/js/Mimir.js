@@ -14,6 +14,7 @@
       this.belongsToSubject = __bind(this.belongsToSubject, this);
       Book.__super__.constructor.apply(this, arguments);
     }
+    Book.prototype.idAttribute = "_id";
     Book.prototype.defaults = {
       subject: "Computer Science"
     };
@@ -23,7 +24,6 @@
       read: "Read"
     };
     Book.prototype.initialize = function(attributes) {
-      this.id = attributes["_id"];
       if (!attributes.status) {
         return this.set({
           status: this.bookStatus.pending
@@ -58,13 +58,14 @@
   window.Books = Books = (function() {
     __extends(Books, Backbone.Collection);
     function Books() {
-      this.initialize = __bind(this.initialize, this);
       Books.__super__.constructor.apply(this, arguments);
     }
     Books.prototype.model = Book;
     Books.prototype.url = "/books";
     Books.prototype.initialize = function() {
-      return this.bind("change:status", this.sort);
+      this.bind("change:status", this.sort);
+      this.bind("change:status", this.saveBook);
+      return this.bind("add", this.saveBook);
     };
     Books.prototype.withStatus = function(status) {
       return this.filter(function(book) {
@@ -73,6 +74,13 @@
     };
     Books.prototype.comparator = function(book) {
       return book.get("status");
+    };
+    Books.prototype.saveBook = function(book) {
+      return book.save({
+        success: function(b, response) {
+          return b.id = 1;
+        }
+      });
     };
     return Books;
   })();
@@ -112,13 +120,12 @@
   window.BookView = BookView = (function() {
     __extends(BookView, Backbone.View);
     function BookView() {
+      this.removeBook = __bind(this.removeBook, this);
       this.show = __bind(this.show, this);
-      this.saveModel = __bind(this.saveModel, this);
       this.bookRead = __bind(this.bookRead, this);
       this.bookReading = __bind(this.bookReading, this);
       this.removeItem = __bind(this.removeItem, this);
       this.render = __bind(this.render, this);
-      this.initialize = __bind(this.initialize, this);
       BookView.__super__.constructor.apply(this, arguments);
     }
     BookView.prototype.tagName = "li";
@@ -131,8 +138,7 @@
     BookView.prototype.initialize = function() {
       this.template = _.template($("#book-template").html());
       this.model.bind("change", this.render);
-      this.model.bind("change", this.saveModel);
-      this.model.bind("remove", this.destroy);
+      this.model.bind("destroy", this.removeBook);
       return this.model.bind("filter", this.show);
     };
     BookView.prototype.render = function() {
@@ -142,6 +148,7 @@
       return this;
     };
     BookView.prototype.removeItem = function() {
+      console.log('Model');
       return this.model.destroy();
     };
     BookView.prototype.bookReading = function() {
@@ -150,11 +157,11 @@
     BookView.prototype.bookRead = function() {
       return this.model.read();
     };
-    BookView.prototype.saveModel = function() {
-      return this.model.save();
-    };
     BookView.prototype.show = function() {
       return $(this.el).show();
+    };
+    BookView.prototype.removeBook = function() {
+      return $(this.el).remove();
     };
     return BookView;
   })();
@@ -193,7 +200,6 @@
       this.addBook = __bind(this.addBook, this);
       this.openAddBook = __bind(this.openAddBook, this);
       this.render = __bind(this.render, this);
-      this.initialize = __bind(this.initialize, this);
       ReadingListView.__super__.constructor.apply(this, arguments);
     }
     ReadingListView.prototype.tagName = "section";
@@ -232,8 +238,7 @@
         subject: $("#subject").val()
       });
       this.collection.add(book);
-      book.save();
-      return this.openAddBook();
+      return this.$("#book-form").hide("fast");
     };
     ReadingListView.prototype.filterReadings = function(subject) {
       if (subject === "all") {

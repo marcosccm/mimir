@@ -1,4 +1,5 @@
 window.Book = class Book extends Backbone.Model
+  idAttribute: "_id"
   defaults:
     subject: "Computer Science"
 
@@ -8,7 +9,6 @@ window.Book = class Book extends Backbone.Model
     read:    "Read"
 
   initialize: (attributes) ->
-    @id = attributes["_id"]
     @set(status: @bookStatus.pending) unless attributes.status
 
   reading: ->
@@ -29,14 +29,19 @@ window.Books = class Books extends Backbone.Collection
   model: Book
   url: "/books"
 
-  initialize: =>
+  initialize: ->
     @bind("change:status", @sort)
+    @bind("change:status", @saveBook)
+    @bind("add", @saveBook)
 
   withStatus: (status) ->
     @filter (book) -> book.hasStatus(status)
  
   comparator: (book) ->
     book.get("status")
+  
+  saveBook: (book) -> 
+    book.save(success: (b, response) -> b.id = 1)
 
 
 window.readings = new Books()
@@ -68,11 +73,10 @@ window.BookView = class BookView extends Backbone.View
     "click button[data-action='reading']" : "bookReading"
     "click button[data-action='read']" : "bookRead"
 
-  initialize: =>
+  initialize: ->
     @template = _.template $("#book-template").html()
     @model.bind "change", @render
-    @model.bind "change", @saveModel
-    @model.bind "remove", @destroy
+    @model.bind "destroy", @removeBook
     @model.bind "filter", @show
 
   render: =>
@@ -81,6 +85,7 @@ window.BookView = class BookView extends Backbone.View
     this
 
   removeItem: =>
+    console.log('Model')
     @model.destroy()
 
   bookReading: =>
@@ -89,11 +94,11 @@ window.BookView = class BookView extends Backbone.View
   bookRead: =>
     @model.read()
 
-  saveModel: =>
-    @model.save()
-
   show: =>
     $(@el).show()
+
+  removeBook: =>
+    $(@el).remove()
 
 window.SubjectView = class SubjectView extends Backbone.View
   tagName: "li"
@@ -122,7 +127,7 @@ window.ReadingListView = class ReadingListView extends Backbone.View
     "click #add-book" : "addBook"
     "click #open-add-book" : "openAddBook"
 
-  initialize: =>
+  initialize: ->
     @subjects = @options.subjects
     @template = _.template $("#reading-list-template").html()
     @collection.bind "reset", @render
@@ -143,8 +148,7 @@ window.ReadingListView = class ReadingListView extends Backbone.View
     subject = subjects.findOrCreate($("#subject").val())
     book = new Book(title: $("#book-title").val(), subject: $("#subject").val())
     @collection.add(book)
-    book.save()
-    @openAddBook()
+    @$("#book-form").hide("fast")
 
   filterReadings: (subject) =>
     if subject == "all" 
