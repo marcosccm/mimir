@@ -13,7 +13,6 @@ Installation
 For now there is no installation mechanism. To run the app just unpack it somewhere, cd into the directory  
 and run:
 
-``` ruby
-Rake Server
+$ Rake Server
 
 Mimir will be up at the 9393 port. 
