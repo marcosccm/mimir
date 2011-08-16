@@ -42,6 +42,11 @@
         status: this.bookStatus.read
       });
     };
+    Book.prototype.queue = function() {
+      return this.set({
+        status: this.bookStatus.pending
+      });
+    };
     Book.prototype.belongsToSubject = function(description) {
       return this.get('subject') === description;
     };
@@ -115,6 +120,7 @@
     function BookView() {
       this.removeBook = __bind(this.removeBook, this);
       this.show = __bind(this.show, this);
+      this.bookQueue = __bind(this.bookQueue, this);
       this.bookRead = __bind(this.bookRead, this);
       this.bookReading = __bind(this.bookReading, this);
       this.removeItem = __bind(this.removeItem, this);
@@ -124,9 +130,10 @@
     BookView.prototype.tagName = "li";
     BookView.prototype.className = "book";
     BookView.prototype.events = {
-      "click button[data-action='remove']": "removeItem",
-      "click button[data-action='reading']": "bookReading",
-      "click button[data-action='read']": "bookRead"
+      "click a[data-action='remove']": "removeItem",
+      "click a[data-action='reading']": "bookReading",
+      "click a[data-action='read']": "bookRead",
+      "click a[data-action='queue']": "bookQueue"
     };
     BookView.prototype.initialize = function() {
       this.template = _.template($("#book-template").html());
@@ -149,6 +156,9 @@
     };
     BookView.prototype.bookRead = function() {
       return this.model.read();
+    };
+    BookView.prototype.bookQueue = function() {
+      return this.model.queue();
     };
     BookView.prototype.show = function() {
       return $(this.el).show();

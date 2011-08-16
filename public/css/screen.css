@@ -94,6 +94,17 @@ section h2 {
   width: 300px;
   margin: 0;
 }
+.readings .actions a{ 
+  float: right;
+  text-decoration: none;
+  font-weight:bold;
+  margin-right: 5px;
+  color: #494d4b;
+}
+
+a:hover {
+  color: #E2CB92 !important;
+}
 
 #book-form { 
   display: none;

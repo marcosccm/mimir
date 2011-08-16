@@ -19,6 +19,9 @@ window.Book = class Book extends Backbone.Model
   read: ->
     @set(status: @bookStatus.read)
 
+  queue: ->
+    @set(status: @bookStatus.pending)
+
   belongsToSubject: (description) =>
     @get('subject') == description
 
@@ -65,9 +68,10 @@ window.BookView = class BookView extends Backbone.View
   className: "book"
 
   events:
-    "click button[data-action='remove']" : "removeItem"
-    "click button[data-action='reading']" : "bookReading"
-    "click button[data-action='read']" : "bookRead"
+    "click a[data-action='remove']" : "removeItem"
+    "click a[data-action='reading']" : "bookReading"
+    "click a[data-action='read']" : "bookRead"
+    "click a[data-action='queue']" : "bookQueue"
 
   initialize: ->
     @template = _.template $("#book-template").html()
@@ -89,6 +93,9 @@ window.BookView = class BookView extends Backbone.View
 
   bookRead: =>
     @model.read()
+
+  bookQueue: =>
+    @model.queue()
 
   show: =>
     $(@el).show()
