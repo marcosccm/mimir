@@ -10,6 +10,8 @@ window.Book = class Book extends Backbone.Model
 
   initialize: (attributes) ->
     @set(status: @bookStatus.pending) unless attributes.status
+    @bind("change:status", @save)
+    @bind("add", @save)
 
   reading: ->
     @set(status: @bookStatus.reading)
@@ -31,18 +33,12 @@ window.Books = class Books extends Backbone.Collection
 
   initialize: ->
     @bind("change:status", @sort)
-    @bind("change:status", @saveBook)
-    @bind("add", @saveBook)
 
   withStatus: (status) ->
     @filter (book) -> book.hasStatus(status)
  
   comparator: (book) ->
     book.get("status")
-  
-  saveBook: (book) -> 
-    book.save(success: (b, response) -> b.id = 1)
-
 
 window.readings = new Books()
 

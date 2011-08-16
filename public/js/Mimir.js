@@ -25,10 +25,12 @@
     };
     Book.prototype.initialize = function(attributes) {
       if (!attributes.status) {
-        return this.set({
+        this.set({
           status: this.bookStatus.pending
         });
       }
+      this.bind("change:status", this.save);
+      return this.bind("add", this.save);
     };
     Book.prototype.reading = function() {
       return this.set({
@@ -63,9 +65,7 @@
     Books.prototype.model = Book;
     Books.prototype.url = "/books";
     Books.prototype.initialize = function() {
-      this.bind("change:status", this.sort);
-      this.bind("change:status", this.saveBook);
-      return this.bind("add", this.saveBook);
+      return this.bind("change:status", this.sort);
     };
     Books.prototype.withStatus = function(status) {
       return this.filter(function(book) {
@@ -74,13 +74,6 @@
     };
     Books.prototype.comparator = function(book) {
       return book.get("status");
-    };
-    Books.prototype.saveBook = function(book) {
-      return book.save({
-        success: function(b, response) {
-          return b.id = 1;
-        }
-      });
     };
     return Books;
   })();
